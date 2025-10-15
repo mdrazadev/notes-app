@@ -42,6 +42,8 @@ class HomeV extends StatelessWidget {
                       color: theme.colorScheme.blacktheme,
                     ),
                   )
+                  : vm.foldersList.isEmpty
+                  ? const Center(child: Text("Empty"))
                   : ListView.builder(
                     itemCount: vm.foldersList.length,
                     itemBuilder: (context, index) {
