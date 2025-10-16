@@ -28,7 +28,7 @@ class HomeV extends StatelessWidget {
             vm.isLoading.value
                 ? SizedBox.shrink()
                 : FloatingActionButton(
-                  onPressed: () => vm.addNewFolder(context),
+                  onPressed: () => vm.addFolderDialog(context),
                   backgroundColor: theme.colorScheme.blacktheme,
                   child: Icon(Icons.add),
                 ),

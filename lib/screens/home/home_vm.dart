@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_app/res/extensions/color_extsion.dart';
 import 'package:notes_app/res/mixins/logger_mixin.dart';
+import 'package:notes_app/res/services/directory_services.dart';
+import 'package:notes_app/res/utils/snackbar_utils.dart';
 import 'package:notes_app/screens/home/widgets/add_folder_widget.dart'
     show AddFolderWidget;
 import 'package:permission_handler/permission_handler.dart';
@@ -26,13 +28,12 @@ class HomeVM extends GetxController with LoggerMixin {
   @override
   void onInit() {
     super.onInit();
-    isLoading.value = true;
-    Future.delayed(const Duration(seconds: 2), () {
-      isLoading.value = false;
-    });
+    if (Get.context != null) {
+      getListOfFolders(Get.context!);
+    }
   }
 
-  void addNewFolder(BuildContext context) {
+  void addFolderDialog(BuildContext context) {
     final theme = Theme.of(context);
     showGeneralDialog(
       context: context,
@@ -48,16 +49,7 @@ class HomeVM extends GetxController with LoggerMixin {
             opacity: animation.value,
             child: AddFolderWidget(
               controller: controller,
-              onFolderAdd: () async {
-                isLoading.value = true;
-                foldersList.insert(0, controller.text);
-                requestPermission();
-                // final path = await createDir(controller.text.trim());
-                // createFileAndAddContent(path);
-                controller.clear();
-                Get.back();
-                isLoading.value = false;
-              },
+              onFolderAdd: () => addFolder(context),
             ),
           ),
         );
@@ -65,18 +57,79 @@ class HomeVM extends GetxController with LoggerMixin {
     );
   }
 
-  Future<void> requestPermission() async {
+  addFolder(BuildContext context) async {
+    isLoading.value = true;
+    final bool isGranted = await requestPermission();
+
+    if (isGranted) {
+      final DirectoryServices dirServices = DirectoryServices();
+
+      dirServices.createDir(controller.text.trim()).then((respones) {
+        controller.clear();
+        getListOfFolders(context);
+        Get.back();
+        isLoading.value = false;
+        if (respones == DirStatus.created) {
+          SnackbarUtils.bottomSnackbar(context, "Folder created successfully.");
+        } else if (respones == DirStatus.exists) {
+          SnackbarUtils.bottomSnackbar(context, "Folder already exists.");
+        } else {
+          SnackbarUtils.bottomSnackbar(
+            context,
+            "Something went wrong.",
+            isDangerous: true,
+          );
+        }
+      });
+      isLoading.value = false;
+    } else {
+      logDebug("Storage permission is not granted");
+      isLoading.value = false;
+      SnackbarUtils.bottomSnackbar(
+        context,
+        "Storage permission is not granted",
+      );
+    }
+  }
+
+  Future<bool> requestPermission() async {
     if (await Permission.manageExternalStorage.isGranted) {
       logDebug("✅ Permission already granted");
-      return;
+      return true;
     }
 
     var status = await Permission.manageExternalStorage.request();
 
     if (status.isGranted) {
       logDebug("✅ Storage permission granted");
+      return true;
     } else {
       logDebug("❌ Storage permission denied");
+      return false;
     }
+  }
+
+  Future<void> getListOfFolders(BuildContext context) async {
+    isLoading.value = true;
+    final DirectoryServices directoryServices = DirectoryServices();
+
+    directoryServices.listOfDir().then((response) {
+      if (response != null) {
+        foldersList.value =
+            response.map((dir) => dir.path.split("/").last).toList();
+        isLoading.value = false;
+        SnackbarUtils.bottomSnackbar(
+          context,
+          "${response.length} folders found",
+        );
+      } else {
+        isLoading.value = false;
+        SnackbarUtils.bottomSnackbar(
+          context,
+          "No folders found",
+          isDangerous: true,
+        );
+      }
+    });
   }
 }
