@@ -48,6 +48,7 @@ class HomeVM extends GetxController with LoggerMixin {
           child: Opacity(
             opacity: animation.value,
             child: AddFolderWidget(
+              hintText: "Enter folder name",
               controller: controller,
               onFolderAdd: () => addFolder(context),
             ),

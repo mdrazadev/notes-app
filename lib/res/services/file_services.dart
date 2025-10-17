@@ -15,14 +15,16 @@ class FileServices with LoggerMixin {
   }
 
   /// Creates a [TextFile] at give path.
-  Future<String> createFile({
+  Future<bool> createFile({
     required String fileName,
-    required String path,
+    required String dir,
   }) async {
-    final File file = File("$path/$fileName.txt");
+    final File file = File(
+      "/storage/emulated/0/Documents/NotesApp/$dir/$fileName.txt",
+    );
     logDebug("✅ File created at: ${file.path}");
 
-    return "File created at: ${file.path}";
+    return true;
   }
 
   addContentToFile({required String filePath, required String content}) async {
@@ -34,7 +36,7 @@ class FileServices with LoggerMixin {
   }
 
   /// Returns [ListOfFiles] in given [Directory]
-  Future<List<FileSystemEntity>> listFiles(String dirName) async {
+  Future<List<FileSystemEntity>> getFiles(String dirName) async {
     // Public Documents folder (visible to users)
     final Directory dir = Directory(
       '/storage/emulated/0/Documents/NotesApp/$dirName',

@@ -6,9 +6,11 @@ class AddFolderWidget extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onFolderAdd,
+    required this.hintText,
   });
 
   final TextEditingController controller;
+  final String hintText;
   final VoidCallback onFolderAdd;
 
   @override
@@ -39,7 +41,7 @@ class AddFolderWidget extends StatelessWidget {
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
                   border: InputBorder.none,
-                  hintText: "Enter folder name",
+                  hintText: hintText,
                 ),
               ),
             ),

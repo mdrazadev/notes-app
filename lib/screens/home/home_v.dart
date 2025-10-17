@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_app/res/extensions/color_extsion.dart';
+import 'package:notes_app/res/routes/routes_name.dart';
+import 'package:notes_app/res/widgets/loaders/loader_widget.dart'
+    show LoaderWidget;
 import 'package:notes_app/screens/home/home_vm.dart';
 
 class HomeV extends StatelessWidget {
@@ -37,20 +40,21 @@ class HomeV extends StatelessWidget {
         child: Obx(
           () =>
               vm.isLoading.value
-                  ? Center(
-                    child: CircularProgressIndicator(
-                      color: theme.colorScheme.blacktheme,
-                    ),
-                  )
+                  ? LoaderWidget()
                   : vm.foldersList.isEmpty
                   ? const Center(child: Text("Empty"))
                   : ListView.builder(
                     itemCount: vm.foldersList.length,
                     itemBuilder: (context, index) {
+                      final folder = vm.foldersList[index];
                       return ListTile(
-                        title: Text(vm.foldersList[index]),
+                        title: Text(folder),
                         trailing: Icon(Icons.keyboard_arrow_right),
-                        onTap: () {},
+                        onTap:
+                            () => Get.toNamed(
+                              RoutesName.files,
+                              arguments: folder,
+                            ),
                       );
                     },
                   ),
