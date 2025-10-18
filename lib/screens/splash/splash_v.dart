@@ -14,7 +14,7 @@ class _SplashVState extends State<SplashV> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 2), () {
-      Get.offAllNamed(RoutesName.home);
+      Get.offAllNamed(RoutesName.auth);
     });
   }
 

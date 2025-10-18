@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_app/res/extensions/color_extsion.dart';
 import 'package:notes_app/res/mixins/logger_mixin.dart';
+import 'package:notes_app/res/routes/routes_name.dart';
+import 'package:notes_app/res/services/auth_service.dart';
 import 'package:notes_app/res/services/directory_services.dart';
 import 'package:notes_app/res/utils/snackbar_utils.dart';
 import 'package:notes_app/screens/home/widgets/add_folder_widget.dart'
@@ -131,6 +133,14 @@ class HomeVM extends GetxController with LoggerMixin {
           isDangerous: true,
         );
       }
+    });
+  }
+
+  Future<void> logout() async {
+    final AuthService authService = AuthService();
+
+    authService.logout().then((response) {
+      Get.offAllNamed(RoutesName.splash);
     });
   }
 }

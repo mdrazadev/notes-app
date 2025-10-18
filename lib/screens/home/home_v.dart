@@ -20,10 +20,8 @@ class HomeV extends StatelessWidget {
         foregroundColor: theme.colorScheme.blacktheme,
         elevation: 0,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4.0),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          ),
+          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+          IconButton(onPressed: vm.logout, icon: Icon(Icons.logout)),
         ],
       ),
       floatingActionButton: Obx(
