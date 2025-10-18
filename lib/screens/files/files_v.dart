@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_app/res/extensions/color_extsion.dart';
+import 'package:notes_app/res/routes/routes_name.dart';
 import 'package:notes_app/res/widgets/loaders/loader_widget.dart';
 import 'package:notes_app/screens/files/files_vm.dart';
 
@@ -40,7 +41,8 @@ class FilesV extends StatelessWidget {
             vm.isLoading.value
                 ? SizedBox.shrink()
                 : FloatingActionButton(
-                  onPressed: () => vm.addFileDialog(context),
+                  // onPressed: () => vm.addFileDialog(context),
+                  onPressed: () => vm.openNotepad(),
                   backgroundColor: theme.colorScheme.blacktheme,
                   child: Icon(Icons.add),
                 ),

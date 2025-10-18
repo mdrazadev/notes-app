@@ -19,19 +19,37 @@ class FileServices with LoggerMixin {
     required String fileName,
     required String dir,
   }) async {
-    final File file = File(
-      "/storage/emulated/0/Documents/NotesApp/$dir/$fileName.txt",
-    );
-    logDebug("✅ File created at: ${file.path}");
+    try {
+      // Ensure directory exists
+      final directory = Directory(
+        "/storage/emulated/0/Documents/NotesApp/$dir",
+      );
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
 
-    return true;
+      // Create the file
+      final file = File("${directory.path}/$fileName.txt");
+      if (!await file.exists()) {
+        await file.create();
+      }
+
+      logDebug("✅ File created at: ${file.path}");
+      return true;
+    } catch (e) {
+      logError("❌ Error creating file: $e");
+      return false;
+    }
   }
 
-  addContentToFile({required String filePath, required String content}) async {
+  Future<void> addContentToFile({
+    required String filePath,
+    required String content,
+  }) async {
     final File file = File(filePath);
 
     if (await file.exists()) {
-      await file.writeAsString("Sample content to write");
+      await file.writeAsString(content);
     }
   }
 
