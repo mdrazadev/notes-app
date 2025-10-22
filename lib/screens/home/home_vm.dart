@@ -1,10 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_app/res/extensions/color_extsion.dart';
 import 'package:notes_app/res/mixins/logger_mixin.dart';
-import 'package:notes_app/res/routes/routes_name.dart';
 import 'package:notes_app/res/services/auth_service.dart';
 import 'package:notes_app/res/services/directory_services.dart';
 import 'package:notes_app/res/utils/snackbar_utils.dart';
@@ -52,7 +53,8 @@ class HomeVM extends GetxController with LoggerMixin {
             child: AddFolderWidget(
               hintText: "Enter folder name",
               controller: controller,
-              onFolderAdd: () => addFolder(context),
+              // onFolderAdd: () => addFolder(context),
+              onFolderAdd: () => addFirebaseFolder(context),
             ),
           ),
         );
@@ -139,8 +141,50 @@ class HomeVM extends GetxController with LoggerMixin {
   Future<void> logout() async {
     final AuthService authService = AuthService();
 
-    authService.logout().then((response) {
-      Get.offAllNamed(RoutesName.splash);
-    });
+    // authService.logout().then((response) {
+    //   // Get.offAllNamed(RoutesName.splash);
+    // });
+    authService.logout();
+  }
+
+  // ============================================= FIREBASE ==========================================
+
+  Stream<QuerySnapshot> getFirebaseFolders() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("folders")
+        .orderBy("createdAt", descending: true)
+        .snapshots();
+  }
+
+  Future<void> addFirebaseFolder(BuildContext context) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final uid = currentUser!.uid;
+
+      // adding folder to firestore:
+      final folderRef = FirebaseFirestore.instance
+          .collection("users")
+          .doc(uid)
+          .collection("folders")
+          .doc(controller.text.trim());
+
+      await folderRef
+          .set({
+            "name": controller.text.trim(),
+            "createdAt": FieldValue.serverTimestamp(),
+          })
+          .then((_) {
+            controller.clear();
+            Get.back();
+            SnackbarUtils.bottomSnackbar(context, "Folder added successfully");
+          });
+    } catch (e) {
+      logError(e.toString());
+      SnackbarUtils.bottomSnackbar(context, e.toString(), isDangerous: true);
+    }
   }
 }
